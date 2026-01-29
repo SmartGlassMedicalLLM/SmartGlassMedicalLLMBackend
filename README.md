@@ -1,4 +1,4 @@
-# Smart-Glass-and-AI-Technology-to-Integrate-Medical-Information
+# smart-glass-medical-assistant
 Employing glass AI optical character recognition (OCR system, to capture images of a PDF document in the user’s view. Then convert the images to text into a digital format. After this information is analyzed, various functions to be completed: summarizing the documentation, location of specific information, and converting text to audio.
 
 ## System Architecture
