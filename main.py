@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
+from google import genai
 import requests
 
 app = FastAPI()
@@ -19,6 +20,16 @@ async def prompt_local_llm(question: Question):
     )
     
     return response.json()
+
+@app.post("/gemini")
+async def prompt_gemini_llm(question: Question):
+    client = genai.Client()
+
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview", contents=question.prompt
+    )
+
+    return response
 
 if __name__ == "__main__":
     import uvicorn
