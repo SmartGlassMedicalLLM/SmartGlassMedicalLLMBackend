@@ -21,4 +21,8 @@ Logic and Data Access Layers.
 - Security: Security Verification can occur at both the Application and Data Access Layers, prior
 to being made available to the Presentation Layer.
 
+## Contributing
 
+Open the fine-tuning MedGemma notebook posted here on Google Colab with the following link: https://colab.research.google.com/github/EddyferO/Smart-Glass-Medical-Assistant/blob/main/fine_tune_medgemma.ipynb.
+
+You will have to authenticate with GitHub.
