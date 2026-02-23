@@ -134,7 +134,7 @@ def fetch_dailyMed_interactions(drug_name):
 
 ## Pull drug info with DailyMed and then prompt for extraction
 
-def test_new_drug_with_medgemma(drug_name, dailyMed=True):
+def extract_interactions_from_drug(drug_name):
     collected_data = fetch_dailyMed_interactions(drug_name)
 
     if collected_data is None:
