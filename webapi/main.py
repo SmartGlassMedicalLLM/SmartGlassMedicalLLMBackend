@@ -2,6 +2,8 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 import requests
 
+from medgemma_base import medgemma_base_prompt
+
 app = FastAPI()
 
 class Input(BaseModel):
@@ -9,16 +11,7 @@ class Input(BaseModel):
 
 @app.post("/base")
 async def prompt_base(input: Input):
-    response = requests.post(
-        "http://localhost:11434/api/generate",
-        json={
-            "model": "llama3",
-            "prompt": input.prompt,
-            "stream": False
-        }
-    )
-    
-    return response.json()
+    return medgemma_base_prompt(input.prompt)
 
 @app.post("/in-context")
 async def prompt_in_context(input: Input):
