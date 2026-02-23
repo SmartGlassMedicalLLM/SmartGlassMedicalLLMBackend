@@ -2,7 +2,7 @@ import json
 import glob
 import os
 import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from medgemma_utils import tokenizer, model
 import requests
 from xml.etree import ElementTree
 
@@ -20,24 +20,6 @@ def load_drug_data(directory):
     return all_data
 
 drug_data = load_drug_data("/content/trainingFilesConverted/")
-
-## Get model and tokenizer
-
-model_id = "google/medgemma-4b-it"
-
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_use_double_quant=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.bfloat16
-)
-
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    quantization_config=bnb_config,
-    device_map="auto"
-)
 
 ## Build in-context prompt
 
