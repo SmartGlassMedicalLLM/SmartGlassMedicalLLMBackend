@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import requests
 
 from medgemma_base import medgemma_base_prompt
+from medgemma_in_context import extract_interactions_from_drug
 
 app = FastAPI()
 
@@ -15,7 +16,7 @@ async def prompt_base(input: Input):
 
 @app.post("/in-context")
 async def prompt_in_context(input: Input):
-    return {}
+    return extract_interactions_from_drug(input.prompt)
 
 @app.post("/fine-tuned")
 async def prompt_fine_tuned(input: Input):
