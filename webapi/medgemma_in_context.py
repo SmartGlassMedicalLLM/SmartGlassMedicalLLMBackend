@@ -28,18 +28,27 @@ def run_in_context_extraction(target_drug, target_text, shots=2):
     context_examples = [ex for ex in drug_data if ex['drug'] != target_drug][:shots]
 
     # Build the prompt string
-    prompt = "SYSTEM: You are a medical informatics expert. Extract drug-drug interactions into a structured JSON list.\n\n"
+    sys_prompt = "You are a medical informatics expert. Extract drug-drug interactions into a structured JSON list.\n\n"
 
+    formatted_input = "" # https://ai.google.dev/gemma/docs/core/prompt-structure
     for i, ex in enumerate(context_examples):
-        prompt += f"### EXAMPLE {i+1}\n"
-        prompt += f"DRUG: {ex['drug']}\n"
-        prompt += f"TEXT: {ex['text'][:600]}...\n" # Truncated for token safety
-        prompt += f"RESULT: {json.dumps(ex['interactions'])}\n\n"
+        formatted_input += "<start_of_turn>user\n"
 
-    prompt += f"### TASK\nDRUG: {target_drug}\nTEXT:\n{target_text}\n\nRESULT:"
+        if i == 0:
+            formatted_input += sys_prompt
+
+        formatted_input += f"Based on the following prescribing information, provide the drug-drug interactions for the drug, {ex['drug']}, in a sturctured JSON list.\n\n"
+        formatted_input += ex['text']
+
+        formatted_input += "<end_of_turn>\n<start_of_turn>model\n"
+        formatted_input += json.dumps(ex['interactions']) + "<end_of_turn>\n"
+
+    # Adds the actual question/prompt
+    formatted_input += f"<start_of_turn>user\nBased on the following prescribing information, provide the drug-drug interactions for the drug, {target_drug}, in a sturctured JSON list.\n\n"
+    formatted_input += target_text
+    formatted_input += "<end_of_turn>\n<start_of_turn>model\n[" # Force JSON start
 
     # Execute
-    formatted_input = f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n[" # Force JSON start
     inputs = tokenizer(formatted_input, return_tensors="pt").to("cuda")
 
     with torch.no_grad():
