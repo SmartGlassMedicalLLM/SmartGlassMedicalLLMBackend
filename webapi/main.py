@@ -7,19 +7,19 @@ from medgemma_in_context import extract_interactions_from_drug
 
 app = FastAPI()
 
-class Input(BaseModel):
+class BasicPrompt(BaseModel):
     prompt: str
 
 @app.post("/base")
-async def prompt_base(input: Input):
+async def prompt_base(input: BasicPrompt):
     return medgemma_base_prompt(input.prompt)
 
 @app.post("/in-context")
-async def prompt_in_context(input: Input):
+async def prompt_in_context(input: BasicPrompt):
     return extract_interactions_from_drug(input.prompt)
 
 @app.post("/fine-tuned")
-async def prompt_fine_tuned(input: Input):
+async def prompt_fine_tuned(input: BasicPrompt):
     return {}
 
 if __name__ == "__main__":
