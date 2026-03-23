@@ -32,7 +32,7 @@ async def prompt_convo_base(input: ConvoPrompt):
     if input.new:
         reset_convo()
         return {"success": True}
-    return prompt_convo(input.prompt)
+    return {"response": prompt_convo(input.prompt)}
 
 if __name__ == "__main__":
     import uvicorn
