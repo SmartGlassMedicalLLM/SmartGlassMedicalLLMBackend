@@ -51,7 +51,7 @@ if prompt := st.chat_input("Ask a medical question..."):
                 response.raise_for_status()
                 
                 try:
-                    full_response = response.json().get("response", "No response field found.")
+                    full_response = response.json().get("response")
                     st.markdown(full_response)
                 except ValueError:
                     st.markdown(response)
