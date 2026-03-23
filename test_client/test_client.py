@@ -14,7 +14,7 @@ st.set_page_config(page_title="MedGemma Interface", layout="centered")
 st.sidebar.header("Connection Settings")
 server_ip = st.sidebar.text_input("Server IP/DNS", value="http://127.0.0.1")
 server_port = st.sidebar.text_input("Port", value="8000")
-endpoint = f"{server_ip}:{server_port}/chat"
+endpoint = f"{server_ip}:{server_port}/convo"
 
 if st.sidebar.button("Clear Chat History"):
     st.session_state.messages = []
