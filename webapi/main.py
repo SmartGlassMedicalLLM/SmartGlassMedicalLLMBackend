@@ -4,6 +4,7 @@ import requests
 
 from medgemma_base import medgemma_base_prompt
 from medgemma_in_context import extract_interactions_from_drug
+from medgemma_convo import prompt_convo, reset_convo
 
 app = FastAPI()
 
@@ -27,7 +28,10 @@ async def prompt_fine_tuned(input: BasicPrompt):
 
 @app.post("/convo")
 async def prompt_convo(input: ConvoPrompt):
-    return {}
+    if input.new:
+        reset_convo()
+        return {"success": True}
+    return {"response": prompt_convo(input.prompt)}
 
 if __name__ == "__main__":
     import uvicorn
