@@ -28,7 +28,7 @@ async def prompt_fine_tuned(input: BasicPrompt):
     return {}
 
 @app.post("/convo")
-async def prompt_convo(input: ConvoPrompt):
+async def prompt_convo_base(input: ConvoPrompt):
     if input.new:
         reset_convo()
         return {"success": True}
