@@ -25,6 +25,10 @@ async def prompt_in_context(input: BasicPrompt):
 async def prompt_fine_tuned(input: BasicPrompt):
     return {}
 
+@app.post("/convo")
+async def prompt_convo(input: ConvoPrompt):
+    return {}
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8000)
