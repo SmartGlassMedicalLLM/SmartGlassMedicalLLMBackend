@@ -11,7 +11,8 @@ app = FastAPI()
 class BasicPrompt(BaseModel):
     prompt: str
 
-class ConvoPrompt(BasicPrompt):
+class ConvoPrompt(BaseModel):
+    prompt: str
     new: bool
 
 @app.post("/base")
