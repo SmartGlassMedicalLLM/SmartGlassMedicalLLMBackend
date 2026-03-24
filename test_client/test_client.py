@@ -47,7 +47,7 @@ if prompt := st.chat_input("Ask a medical question..."):
     with st.chat_message("assistant"):
         try:
             with st.spinner("Thinking..."):
-                response = requests.post(endpoint, json=payload, timeout=60)
+                response = requests.post(endpoint, json=payload, timeout=180)
                 response.raise_for_status()
                 
                 try:
