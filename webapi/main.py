@@ -5,6 +5,7 @@ import requests
 from medgemma_base import medgemma_base_prompt
 from medgemma_in_context import extract_interactions_from_drug
 from medgemma_convo import prompt_convo, reset_convo
+from long_t5_script import summarize
 
 app = FastAPI()
 
@@ -13,6 +14,9 @@ class BasicPrompt(BaseModel):
 
 class ConvoPrompt(BasicPrompt):
     new: bool
+
+class SummarizeInput(Input):
+    max_words: int
 
 @app.post("/base")
 async def prompt_base(input: BasicPrompt):
@@ -32,6 +36,11 @@ async def prompt_convo_base(input: ConvoPrompt):
         reset_convo()
         return {"success": True}
     return {"response": prompt_convo(input.prompt)}
+
+@app.post("/summarize")
+async def prompt_summarize(input: SummarizeInput):
+    result = summarize(input.prompt, max_words=input.max_words)
+    return {"summary": result}
 
 if __name__ == "__main__":
     import uvicorn
