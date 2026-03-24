@@ -5,7 +5,7 @@ import requests
 from medgemma_base import medgemma_base_prompt
 from medgemma_in_context import extract_interactions_from_drug
 from medgemma_convo import prompt_convo, reset_convo
-from long_t5_script import summarize
+from long_t5_summarize import summarize
 
 app = FastAPI()
 
