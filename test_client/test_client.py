@@ -17,8 +17,19 @@ server_port = st.sidebar.text_input("Port", value="8000")
 endpoint = f"{server_ip}:{server_port}/convo"
 
 if st.sidebar.button("Clear Chat History"):
-    st.session_state.messages = []
-    st.success("History cleared!")
+    try:
+        payload = {
+            "prompt": "",
+            "new": True
+        }
+        response = requests.post(endpoint, json=payload, timeout=10)
+        response.raise_for_status()
+        st.text(response)
+
+        st.session_state.messages = []
+        st.success("History cleared!")
+    except requests.exceptions.RequestException as e:
+        st.error(f"Connection Error: {e}")
 
 st.title("MedGemma Assistant")
 
@@ -37,10 +48,10 @@ if prompt := st.chat_input("Ask a medical question..."):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    is_new = len(st.session_state.messages) <= 1
+    # is_new = len(st.session_state.messages) <= 1
     payload = {
         "prompt": prompt,
-        "new": is_new
+        "new": False
     }
 
     # send request to API
