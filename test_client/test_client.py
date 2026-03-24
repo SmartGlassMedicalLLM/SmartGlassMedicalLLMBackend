@@ -24,7 +24,7 @@ if st.sidebar.button("Clear Chat History"):
         }
         response = requests.post(endpoint, json=payload, timeout=10)
         response.raise_for_status()
-        st.text(response)
+        st.text(response.json())
 
         st.session_state.messages = []
         st.success("History cleared!")
@@ -66,8 +66,8 @@ if prompt := st.chat_input("Ask a medical question..."):
                     st.markdown(full_response)
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
                 except (AttributeError, ValueError):
-                    st.markdown(response)
-                    st.session_state.messages.append({"role": "assistant", "content": response})
+                    st.markdown(response.json())
+                    st.session_state.messages.append({"role": "assistant", "content": response.json()})
 
                 
         except requests.exceptions.RequestException as e:
