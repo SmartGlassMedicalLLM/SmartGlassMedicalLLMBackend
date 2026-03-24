@@ -15,7 +15,7 @@ class BasicPrompt(BaseModel):
 class ConvoPrompt(BasicPrompt):
     new: bool
 
-class SummarizeInput(Input):
+class SummarizeInput(BasicPrompt):
     max_words: int
 
 @app.post("/base")
