@@ -64,10 +64,11 @@ if prompt := st.chat_input("Ask a medical question..."):
                 try:
                     full_response = response.json().get("response")
                     st.markdown(full_response)
+                    st.session_state.messages.append({"role": "assistant", "content": full_response})
                 except (AttributeError, ValueError):
                     st.markdown(response)
+                    st.session_state.messages.append({"role": "assistant", "content": response})
 
-                st.session_state.messages.append({"role": "assistant", "content": full_response})
                 
         except requests.exceptions.RequestException as e:
             st.error(f"Connection Error: {e}")
