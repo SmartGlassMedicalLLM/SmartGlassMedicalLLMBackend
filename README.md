@@ -23,6 +23,6 @@ to being made available to the Presentation Layer.
 
 ## Contributing
 
-Open the fine-tuning MedGemma notebook posted here on Google Colab with the following link: https://colab.research.google.com/github/EddyferO/Smart-Glass-Medical-Assistant/blob/main/notebooks/fine_tune_with_hugging_face.ipynb.
+Open the fine-tuning MedGemma notebook posted here on Google Colab with the following link: https://colab.research.google.com/github/EddyferO/Smart-Glass-Medical-Assistant/blob/main/resources/notebooks/fine_tune_with_hugging_face.ipynb.
 
 You will have to authenticate with GitHub.
