@@ -22,7 +22,11 @@ class SummarizeInput(BasicPrompt):
 
 @app.post("/base")
 async def prompt_base(input: BaseRequest):
-    return medgemma_base_prompt(input.prompt)
+    return BaseResponse(
+        reqRefId = input.reqRefId,
+        resRefId = input.resRefId,
+        answer = medgemma_base_prompt(input.prompt),
+    )
 
 @app.post("/in-context")
 async def prompt_in_context(input: BaseRequest):
