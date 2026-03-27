@@ -20,7 +20,7 @@ class ConvoPrompt(BasicPrompt):
 class SummarizeInput(BasicPrompt):
     max_words: int
 
-@app.post("/base")
+@app.post("/base", response_model=BaseResponse | ErrorResponse)
 async def prompt_base(
     reqRefId: str = Form(...),
     resRefId: str = Form(...),
