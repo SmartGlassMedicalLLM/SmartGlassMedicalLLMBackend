@@ -1,5 +1,4 @@
 from pydantic import BaseModel
-from fastapi import UploadFile
 
 class Highlight(BaseModel):
   word: str
@@ -15,7 +14,6 @@ class BaseRequest(BaseModel):
   docName: str | None = None
   currPage: int | None = None
   highlights: list[Highlight] | None = None
-  pdf: UploadFile | None = None
 
 class DocumentReference(BaseModel):
   refId: str

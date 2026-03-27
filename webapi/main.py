@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from pydantic import BaseModel
 import requests
 
@@ -21,7 +21,7 @@ class SummarizeInput(BasicPrompt):
     max_words: int
 
 @app.post("/base")
-async def prompt_base(input: BaseRequest):
+async def prompt_base(input: BaseRequest, pdf: UploadFile | None = File(None)):
     if input.pdf is None:
         return BaseResponse(
             reqRefId = input.reqRefId,
