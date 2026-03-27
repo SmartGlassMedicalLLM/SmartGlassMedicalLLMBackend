@@ -7,6 +7,8 @@ from medgemma_in_context import extract_interactions_from_drug
 from medgemma_convo import prompt_convo, reset_convo
 from long_t5_summarize import summarize
 
+from req_res_structures import BaseRequest, BaseResponse, ErrorResponse
+
 app = FastAPI()
 
 class BasicPrompt(BaseModel):
@@ -19,15 +21,15 @@ class SummarizeInput(BasicPrompt):
     max_words: int
 
 @app.post("/base")
-async def prompt_base(input: BasicPrompt):
+async def prompt_base(input: BaseRequest):
     return medgemma_base_prompt(input.prompt)
 
 @app.post("/in-context")
-async def prompt_in_context(input: BasicPrompt):
+async def prompt_in_context(input: BaseRequest):
     return extract_interactions_from_drug(input.prompt)
 
 @app.post("/fine-tuned")
-async def prompt_fine_tuned(input: BasicPrompt):
+async def prompt_fine_tuned(input: BaseRequest):
     return {}
 
 @app.post("/convo")
