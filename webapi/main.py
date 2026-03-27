@@ -1,6 +1,6 @@
-from fastapi import FastAPI, UploadFile, File
+import json
+from fastapi import FastAPI, UploadFile, File, Form
 from pydantic import BaseModel
-import requests
 
 from medgemma_base import medgemma_base_prompt
 from medgemma_in_context import extract_interactions_from_drug
@@ -21,18 +21,38 @@ class SummarizeInput(BasicPrompt):
     max_words: int
 
 @app.post("/base")
-async def prompt_base(input: BaseRequest, pdf: UploadFile | None = File(None)):
-    if input.pdf is None:
+async def prompt_base(
+    reqRefId: str = Form(...),
+    resRefId: str = Form(...),
+    prompt: str = Form(...),
+    sessionId: str | None = Form(None),
+    userId: str | None = Form(None),
+    docName: str | None = Form(None),
+    currPage: int | None = Form(None),
+    highlights: str | None = Form(None),
+    pdf: UploadFile | None = File(None)
+):
+    req = BaseRequest(
+        reqRefId=reqRefId,
+        resRefId=resRefId,
+        prompt=prompt,
+        sessionId=sessionId,
+        userId=userId,
+        docName=docName,
+        currPage=currPage,
+        highlights=json.loads(highlights) if highlights is not None else None
+    )
+    if pdf is None:
         return BaseResponse(
-            reqRefId = input.reqRefId,
-            resRefId = input.resRefId,
-            answer = medgemma_base_prompt(input.prompt),
+            reqRefId = reqRefId,
+            resRefId = resRefId,
+            answer = medgemma_base_prompt(prompt)
         )
     else:
         return BaseResponse(
-            reqRefId = input.reqRefId,
-            resRefId = input.resRefId,
-            answer = "PDF not supported yet",
+            reqRefId = reqRefId,
+            resRefId = resRefId,
+            answer = "PDF not supported yet"
         )
 
 @app.post("/in-context")
