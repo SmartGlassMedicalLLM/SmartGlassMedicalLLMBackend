@@ -1,8 +1,7 @@
 import json
 import glob
 import os
-import torch
-from medgemma_utils import tokenizer, model
+from medgemma_utils import llm, extract_params
 import requests
 from xml.etree import ElementTree
 
@@ -49,21 +48,8 @@ def run_in_context_extraction(target_drug, target_text, shots=2):
     formatted_input += "<end_of_turn>\n<start_of_turn>model\n[" # Force JSON start
 
     # Execute
-    inputs = tokenizer(formatted_input, return_tensors="pt").to("cuda")
-
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=1024,
-            temperature=0.01,
-            do_sample=False
-        )
-
-    # Extract and format response
-    response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
-    final_json = "[" + response
-
-    return final_json
+    outputs = llm.generate([formatted_input], extract_params)
+    return outputs[0].outputs[0].text
 
 ## DailyMed API
 

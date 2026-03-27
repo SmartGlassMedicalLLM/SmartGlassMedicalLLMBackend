@@ -1,20 +1,13 @@
-import torch
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
-
-## Get model and tokenizer
+from vllm import LLM, SamplingParams
 
 model_id = "google/medgemma-4b-it"
 
-bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_use_double_quant=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=torch.bfloat16
+llm = LLM(
+    model=model_id,
+    dtype="bfloat16",
+    max_model_len=8192,
 )
 
-tokenizer = AutoTokenizer.from_pretrained(model_id)
-model = AutoModelForCausalLM.from_pretrained(
-    model_id,
-    quantization_config=bnb_config,
-    device_map="auto"
-)
+base_params    = SamplingParams(temperature=0.01, max_tokens=1024)
+extract_params = SamplingParams(temperature=0.0,  max_tokens=2048)
+convo_params   = SamplingParams(temperature=0.01, max_tokens=512)

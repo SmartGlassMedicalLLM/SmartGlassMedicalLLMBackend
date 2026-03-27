@@ -1,29 +1,16 @@
-import torch
-from medgemma_utils import tokenizer, model
+from medgemma_utils import llm, convo_params
 
 context_history = []
 
 def prompt_convo(prompt):
     global context_history
-    
     context_history.append(f"<start_of_turn>user\n{prompt}<end_of_turn>\n")
-    
     full_prompt = "".join(context_history) + "<start_of_turn>model\n"
-    
-    inputs = tokenizer(full_prompt, return_tensors="pt").to("cuda")
 
-    with torch.no_grad():
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=1024,
-            temperature=0.01,
-            do_sample=False
-        )
-
-    response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+    outputs = llm.generate([full_prompt], convo_params)
+    response = outputs[0].outputs[0].text
     
     context_history.append(f"<start_of_turn>model\n{response}<end_of_turn>\n")
-    
     return response
 
 def reset_convo():
