@@ -71,7 +71,7 @@ If no relevant sentence exists, respond with: {{"quote": null}}
         if not data.get("quote"):
             return None
         return DocumentReference(
-            refId=f"ref-{candidate['page']}-{candidate['word'][:8]}",
+            refId=f"ref-{candidate['page']}-{candidate['word'][:8].replace(" ", "_")}",
             page=candidate['page'],
             label=data["label"],
             quote=data["quote"],
