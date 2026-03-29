@@ -21,7 +21,7 @@ class SummarizeInput(BasicPrompt):
     max_words: int
 
 @app.post("/base", response_model=BaseResponse | ErrorResponse)
-async def prompt_base(
+async def prompt_base_form_data(
     reqRefId: str = Form(...),
     resRefId: str = Form(...),
     prompt: str = Form(...),
@@ -54,6 +54,14 @@ async def prompt_base(
             resRefId = resRefId,
             answer = "PDF not supported yet"
         )
+
+@app.post("/base/json", response_model=BaseResponse | ErrorResponse)
+async def prompt_base_json(input: BaseRequest):
+    return BaseResponse(
+        reqRefId = input.reqRefId,
+        resRefId = input.resRefId,
+        answer = "test"
+    )
 
 @app.post("/in-context")
 async def prompt_in_context(input: BaseRequest):
