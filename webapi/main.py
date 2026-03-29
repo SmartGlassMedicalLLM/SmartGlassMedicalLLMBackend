@@ -7,7 +7,7 @@ from medgemma_in_context import extract_interactions_from_drug
 from medgemma_convo import prompt_convo, reset_convo
 from long_t5_summarize import summarize
 
-from req_res_structures import BaseRequest, BaseResponse, ErrorResponse, APIError
+from req_res_structures import BaseRequest, BaseResponse, ErrorResponse, APIError, Highlight
 from read_pdf import extract_pages, get_candidate_passages, extract_reference
 
 app = FastAPI()
@@ -34,16 +34,30 @@ async def prompt_base_form_data(
     pdf: UploadFile | None = File(None)
 ):
     try:
-        parsed_highlights=json.loads(highlights) if highlights is not None else None
+        json_highlights=json.loads(highlights) if highlights is not None else None
     except json.JSONDecodeError:
         return ErrorResponse(
             reqRefId = reqRefId,
             resRefId = resRefId,
             error = APIError(
-                code = "000_INJSON",
+                code = "000_INJSON", # Invalid JSON
                 message = "Invalid highlights JSON"
             )
         )
+    
+    if json_highlights is not None:
+        try:
+            parsed_highlights = [Highlight(**h) for h in json_highlights]
+        except TypeError:
+            return ErrorResponse(
+                reqRefId = reqRefId,
+                resRefId = resRefId,
+                error = APIError(
+                    code = "002_INMODE", # Invalid model
+                    message = "Invalid internal highlights JSON"
+                )
+            )
+    
     if pdf is None:
         return BaseResponse(
             reqRefId = reqRefId,
