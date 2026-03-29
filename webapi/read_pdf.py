@@ -1,6 +1,6 @@
 import json
 import fitz
-from FastAPI import UploadFile
+from fastapi import UploadFile
 from req_res_structures import Highlight, DocumentReference
 from medgemma_base import medgemma_base_prompt
 
