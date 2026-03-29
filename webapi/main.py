@@ -7,7 +7,8 @@ from medgemma_in_context import extract_interactions_from_drug
 from medgemma_convo import prompt_convo, reset_convo
 from long_t5_summarize import summarize
 
-from req_res_structures import BaseRequest, BaseResponse, ErrorResponse
+from req_res_structures import BaseRequest, BaseResponse, ErrorResponse, APIError
+from read_pdf import extract_pages, get_candidate_passages, extract_reference
 
 app = FastAPI()
 
@@ -32,16 +33,17 @@ async def prompt_base_form_data(
     highlights: str | None = Form(None),
     pdf: UploadFile | None = File(None)
 ):
-    req = BaseRequest(
-        reqRefId=reqRefId,
-        resRefId=resRefId,
-        prompt=prompt,
-        sessionId=sessionId,
-        userId=userId,
-        docName=docName,
-        currPage=currPage,
-        highlights=json.loads(highlights) if highlights is not None else None
-    )
+    try:
+        parsed_highlights=json.loads(highlights) if highlights is not None else None
+    except json.JSONDecodeError:
+        return ErrorResponse(
+            reqRefId = reqRefId,
+            resRefId = resRefId,
+            error = APIError(
+                code = "000_INJSON",
+                message = "Invalid highlights JSON"
+            )
+        )
     if pdf is None:
         return BaseResponse(
             reqRefId = reqRefId,
@@ -49,10 +51,18 @@ async def prompt_base_form_data(
             answer = medgemma_base_prompt(prompt)
         )
     else:
+        pages = await extract_pages(pdf)
+        candidates = get_candidate_passages(pages, parsed_highlights or [])
+        references = [r for c in candidates if (r := extract_reference(c, prompt))]
+        full_answer = medgemma_base_prompt(
+            f"{prompt}\n\nDocument text (relevant pages):\n" +
+            "\n".join(f"[Page {c['page']}] {c['text']}" for c in candidates)
+        )
         return BaseResponse(
-            reqRefId = reqRefId,
-            resRefId = resRefId,
-            answer = "PDF not supported yet"
+            reqRefId=reqRefId,
+            resRefId=resRefId,
+            answer=full_answer,
+            references=references
         )
 
 @app.post("/base/json", response_model=BaseResponse | ErrorResponse)
