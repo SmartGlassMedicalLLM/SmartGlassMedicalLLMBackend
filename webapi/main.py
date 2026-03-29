@@ -54,10 +54,20 @@ async def prompt_base_form_data(
         pages = await extract_pages(pdf)
         candidates = get_candidate_passages(pages, parsed_highlights or [], currPage)
         references = [r for c in candidates if (r := extract_reference(c, prompt))]
-        full_answer = medgemma_base_prompt(
-            f"{prompt}\n\nDocument text (relevant pages):\n" +
-            "\n".join(f"[Page {c['page']}] {c['text']}" for c in candidates)
-        )
+        try:
+            full_answer = medgemma_base_prompt(
+                f"{prompt}\n\nDocument text (relevant pages):\n" +
+                "\n".join(f"[Page {c['page']}] {c['text']}" for c in candidates)
+            )
+        except Exception as e:
+            return ErrorResponse(
+                reqRefId = reqRefId,
+                resRefId = resRefId,
+                error = APIError(
+                    code = "001_PDFANS",
+                    message = str(e)
+                )
+            )
         return BaseResponse(
             reqRefId=reqRefId,
             resRefId=resRefId,
