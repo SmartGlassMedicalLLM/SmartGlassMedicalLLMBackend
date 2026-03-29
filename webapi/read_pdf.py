@@ -37,11 +37,13 @@ def get_candidate_passages(
         ]
 
 def extract_reference(candidate: dict, prompt: str) -> DocumentReference | None:
+    prompt_highlight_term = "" if candidate["word"] is None else f"""
+Highlighted term: "{candidate['word']}"
+"""
     extraction_prompt = f"""
 You are extracting a citation from a medical document.
 
-User's question: {prompt}
-Highlighted term: "{candidate['word']}"
+User's question: {prompt}{prompt_highlight_term}
 Page {candidate['page']} text:
 {candidate['text']}
 """
