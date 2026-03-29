@@ -11,19 +11,30 @@ async def extract_pages(pdf: UploadFile) -> dict[int, str]:
 
 def get_candidate_passages(
     pages: dict[int, str],
-    highlights: list[Highlight]
+    highlights: list[Highlight],
+    current_page: int | None
 ) -> list[dict]:
-    candidates = []
-    for h in highlights:
-        for page_num in h.pages:
-            text = pages.get(page_num, "")
-            if h.word.lower() in text.lower():
-                candidates.append({
-                    "word": h.word,
-                    "page": page_num,
-                    "text": text[:3000]
-                })
-    return candidates
+    if highlights:
+        # If there are highlights, scope to only the pages with highlights
+        candidates = []
+        for h in highlights:
+            for page_num in h.pages:
+                text = pages.get(page_num, "")
+                if h.word.lower() in text.lower():
+                    candidates.append({
+                        "word": h.word,
+                        "page": page_num,
+                        "text": text[:3000]
+                    })
+        return candidates
+    else:
+        # If no highlights, scope to current page
+        # If no current page, scope to all
+        target_pages = [current_page] if current_page else list(pages.keys())
+        return [
+            {"word": None, "page": p, "text": pages[p][:3000]}
+            for p in target_pages
+        ]
 
 def extract_reference(candidate: dict, prompt: str) -> DocumentReference | None:
     extraction_prompt = f"""
@@ -33,9 +44,17 @@ User's question: {prompt}
 Highlighted term: "{candidate['word']}"
 Page {candidate['page']} text:
 {candidate['text']}
-
+"""
+    
+    extraction_prompt += """
+Find the single most relevant sentence from the page text for the user's question.
+""" if candidate["word"] is None else """
 Find the single most relevant sentence from the page text that supports the
 highlighted term in the context of the user's question.
+"""
+    
+    extraction_prompt += """
+The sentence should be in the form of a JSON object with the following keys:
 
 Respond ONLY with valid JSON, no explanation:
 {{

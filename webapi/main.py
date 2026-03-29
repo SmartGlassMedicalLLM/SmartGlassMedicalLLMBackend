@@ -52,7 +52,7 @@ async def prompt_base_form_data(
         )
     else:
         pages = await extract_pages(pdf)
-        candidates = get_candidate_passages(pages, parsed_highlights or [])
+        candidates = get_candidate_passages(pages, parsed_highlights or [], currPage)
         references = [r for c in candidates if (r := extract_reference(c, prompt))]
         full_answer = medgemma_base_prompt(
             f"{prompt}\n\nDocument text (relevant pages):\n" +
