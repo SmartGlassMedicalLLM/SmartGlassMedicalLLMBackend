@@ -37,6 +37,7 @@ def get_candidate_passages(
         ]
 
 def extract_reference(candidate: dict, prompt: str) -> DocumentReference | None:
+    print("Candidate: ", candidate, "Prompt: ", prompt)
     prompt_highlight_term = "" if candidate["word"] is None else f"""
 Highlighted term: "{candidate['word']}"
 """
@@ -64,6 +65,7 @@ Respond ONLY with valid JSON, no explanation:
 If no relevant sentence exists, respond with: {{"quote": null}}
 """
     result = medgemma_base_prompt(extraction_prompt)
+    print("Result: ", result)
     try:
         data = json.loads(result)
         if not data.get("quote"):
