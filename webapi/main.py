@@ -45,6 +45,7 @@ async def prompt_base_form_data(
             )
         )
 
+    parsed_highlights = None
     if json_highlights is not None:
         try:
             parsed_highlights = [Highlight(**h) for h in json_highlights]
