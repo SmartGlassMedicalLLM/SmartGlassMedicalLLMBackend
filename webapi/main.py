@@ -8,7 +8,7 @@ from medgemma_convo import prompt_convo, reset_convo
 from long_t5_summarize import summarize
 
 from req_res_structures import BaseRequest, BaseResponse, ErrorResponse, APIError, Highlight
-from read_pdf import extract_pages, get_candidate_passages, extract_reference
+from read_pdf import extract_pages, get_candidate_passages, extract_reference, pdf_inference_with_references
 
 app = FastAPI()
 
@@ -68,12 +68,8 @@ async def prompt_base_form_data(
     else:
         pages = await extract_pages(pdf)
         candidates = get_candidate_passages(pages, parsed_highlights or [], currPage)
-        references = [r for c in candidates if (r := extract_reference(c, prompt))]
         try:
-            full_answer = medgemma_base_prompt(
-                f"{prompt}\n\nYour response should be concise and academic/medical. Do not start with or follow with any conversational text. Be accurate, specific, and informative. Do so while keeping responses short and to the point.\nDocument text (relevant pages):\n" +
-                "\n".join(f"[Page {c['page']}] {c['text']}" for c in candidates)
-            )
+            answer, references = pdf_inference_with_references(prompt, pages, candidates)
         except Exception as e:
             return ErrorResponse(
                 reqRefId = reqRefId,
@@ -86,7 +82,7 @@ async def prompt_base_form_data(
         return BaseResponse(
             reqRefId=reqRefId,
             resRefId=resRefId,
-            answer=full_answer,
+            answer=answer,
             references=references
         )
 
