@@ -1,6 +1,6 @@
 import torch
-import fitz
 from transformers import AutoTokenizer, LongT5ForConditionalGeneration
+from general_utils import extract_text_from_pdf
 
 # ── Load Model ────────────────────────────────────────────────
 print("Loading Long-T5...")
@@ -29,13 +29,6 @@ def summarize(text, max_words=0):
         early_stopping=True
     )
     return tokenizer.decode(output_ids[0], skip_special_tokens=True)
-
-# ── Extract Text from PDF ─────────────────────────────────────
-def extract_text_from_pdf(pdf_path):
-    doc = fitz.open(pdf_path)
-    full_text = "".join(page.get_text() for page in doc)
-    doc.close()
-    return full_text
 
 # ── Main ──────────────────────────────────────────────────────
 if __name__ == "__main__":
