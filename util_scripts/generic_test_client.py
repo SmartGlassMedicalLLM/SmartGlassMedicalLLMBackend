@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 import json
+import datetime
 
 # Timeout for requests in seconds
 TIMEOUT = 180
@@ -16,7 +17,8 @@ endpoint = st.text_input("URL", placeholder="http://localhost:8000/base", value=
 st.header("JSON Fields")
 
 if "fields" not in st.session_state:
-    st.session_state.fields = [{"key": "", "value": ""}]
+    now = datetime.datetime.now().isoformat()
+    st.session_state.fields = [{"key": "reqRefId", "value": f"{now}-req"}, {"key": "resRefId", "value": f"{now}-res"}, {"key": "prompt", "value": ""}]
 
 def add_field():
     st.session_state.fields.append({"key": "", "value": ""})
