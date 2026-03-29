@@ -118,17 +118,17 @@ From this page text:
 Find the excerpt (maximum of 3 consecutive sentences) that best supports this claim: "{citation['claim']}"
 Respond ONLY with valid JSON: {{"quote": "<exact sentence>", "confidence": <0.0-1.0>}}
 """
-    quote_result = json.loads(medgemma_base_prompt(quote_prompt, "{"))
-    references.append(DocumentReference(
-        refId = f"ref-{citation['page']}-{citation['word'][:8].replace(" ", "_")}",
-        page = citation["page"],
-        label = citation["label"],
-        quote = quote_result["quote"],
-        highlightedWord=next(
-            (c.word for c in (candidates or []) if citation["page"] in c.pages),
-            ""
-        ),
-        confidence=quote_result["confidence"]
-    ))
+        quote_result = json.loads(medgemma_base_prompt(quote_prompt, "{"))
+        references.append(DocumentReference(
+            refId = f"ref-{citation['page']}-{citation['label'][:8].lower().replace(" ", "_")}",
+            page = citation["page"],
+            label = citation["label"],
+            quote = quote_result["quote"],
+            highlightedWord=next(
+                (c.word for c in (candidates or []) if citation["page"] in c.pages),
+                ""
+            ),
+            confidence=quote_result["confidence"]
+        ))
 
     return answer, references
