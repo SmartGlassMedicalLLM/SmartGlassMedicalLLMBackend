@@ -40,22 +40,19 @@ def extract_reference(candidate: dict, prompt: str) -> DocumentReference | None:
     prompt_highlight_term = "" if candidate["word"] is None else f"""
 Highlighted term: "{candidate['word']}"
 """
+    prompt_sentence_extraction = """
+Find the single most relevant sentence from the page text for the user's question.
+""" if candidate["word"] is None else """
+Find the single most relevant sentence from the page text that supports the
+highlighted term in the context of the user's question.
+"""
     extraction_prompt = f"""
 You are extracting a citation from a medical document.
 
 User's question: {prompt}{prompt_highlight_term}
 Page {candidate['page']} text:
 {candidate['text']}
-"""
-    
-    extraction_prompt += """
-Find the single most relevant sentence from the page text for the user's question.
-""" if candidate["word"] is None else """
-Find the single most relevant sentence from the page text that supports the
-highlighted term in the context of the user's question.
-"""
-    
-    extraction_prompt += """
+{prompt_sentence_extraction}
 The sentence should be in the form of a JSON object with the following keys:
 
 Respond ONLY with valid JSON, no explanation:
