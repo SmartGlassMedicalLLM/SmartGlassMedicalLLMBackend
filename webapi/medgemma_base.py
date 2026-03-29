@@ -14,7 +14,7 @@ def run_extraction(target_drug, target_text):
 
 ## Basic prompt
 
-def medgemma_base_prompt(prompt):
-    formatted_input = f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n"
+def medgemma_base_prompt(prompt, force_model_to_start_with = ""):
+    formatted_input = f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n{force_model_to_start_with}"
     outputs = llm.generate([formatted_input], base_params)
-    return outputs[0].outputs[0].text
+    return force_model_to_start_with + outputs[0].outputs[0].text

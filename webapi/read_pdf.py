@@ -64,7 +64,7 @@ Respond ONLY with valid JSON, no explanation:
 }}
 If no relevant sentence exists, respond with: {{"quote": null}}
 """
-    result = medgemma_base_prompt(extraction_prompt)
+    result = medgemma_base_prompt(extraction_prompt, "{")
     print("Result: ", result)
     try:
         data = json.loads(result)
