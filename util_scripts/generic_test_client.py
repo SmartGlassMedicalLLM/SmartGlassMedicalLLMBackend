@@ -64,16 +64,22 @@ if uploaded_pdf:
 
 # Send
 st.divider()
+send_as_form_data = st.checkbox("Send as multipart/form-data", value=True, disabled=True if uploaded_pdf else False)
+if uploaded_pdf:
+    st.text("Note: PDFs, and all the data associated in a PDF request, are always sent as multipart/form-data.")
 if st.button("Send", type="primary", use_container_width=True):
     if not endpoint.strip():
         st.error("Please enter an endpoint URL.")
     else:
         try:
+            data = {k: v for k, v in payload.items()}
             if uploaded_pdf:
-                # Send as multipart/form-data
-                data = {k: v for k, v in payload.items()}
+                # Always send as multipart/form-data
                 files = {pdf_field_name: (uploaded_pdf.name, uploaded_pdf.getvalue(), "application/pdf")}
                 response = requests.post(endpoint, data=data, files=files, timeout=TIMEOUT)
+            elif send_as_form_data:
+                # Send as multipart/form-data
+                response = requests.post(endpoint, data=data, timeout=TIMEOUT)
             else:
                 # Send as plain JSON
                 response = requests.post(endpoint, json=payload, timeout=TIMEOUT)
