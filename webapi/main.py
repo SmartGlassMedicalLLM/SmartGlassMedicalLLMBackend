@@ -44,7 +44,7 @@ async def prompt_base_form_data(
                 message = "Invalid highlights JSON"
             )
         )
-    
+
     if json_highlights is not None:
         try:
             parsed_highlights = [Highlight(**h) for h in json_highlights]
@@ -70,7 +70,7 @@ async def prompt_base_form_data(
         references = [r for c in candidates if (r := extract_reference(c, prompt))]
         try:
             full_answer = medgemma_base_prompt(
-                f"{prompt}\n\nDocument text (relevant pages):\n" +
+                f"{prompt}\n\nYour response should be concise and academic/medical. Do not start with or follow with any conversational text. Be accurate, specific, and informative. Do so while keeping responses short and to the point.\nDocument text (relevant pages):\n" +
                 "\n".join(f"[Page {c['page']}] {c['text']}" for c in candidates)
             )
         except Exception as e:
