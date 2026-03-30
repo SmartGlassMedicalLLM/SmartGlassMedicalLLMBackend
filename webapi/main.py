@@ -40,7 +40,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     )
     return JSONResponse(
         status_code=422,
-        content=jsonable_encoder(data_response.model_dump_json()),
+        content=data_response.model_dump_json(),
     )
 
 @app.post("/advanced/query", response_model=BaseResponse | ErrorResponse)
