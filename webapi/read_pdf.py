@@ -125,7 +125,7 @@ Respond ONLY with valid JSON: {{"quote": "<exact sentence>", "confidence": <0.0-
             label = citation["label"],
             quote = quote_result["quote"],
             highlightedWord=next(
-                (c.word for c in (candidates or []) if citation["page"] in c.pages),
+                (c.word for c in (candidates or []) if citation["page"] in pages),
                 ""
             ),
             confidence=quote_result["confidence"]
