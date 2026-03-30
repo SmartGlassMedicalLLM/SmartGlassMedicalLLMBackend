@@ -15,13 +15,10 @@ from read_pdf import extract_pages, get_candidate_passages, pdf_inference_with_r
 
 app = FastAPI()
 
-class BasicPrompt(BaseModel):
-    prompt: str
+class ConvoPrompt(BaseModel):
+    new: bool = False
 
-class ConvoPrompt(BasicPrompt):
-    new: bool
-
-class SummarizeInput(BasicPrompt):
+class SummarizeInput(BaseModel):
     max_words: int = 0
 
 def simple_medgemma_response(reqRefId: str, resRefId: str, prompt: str) -> BaseResponse:
@@ -119,17 +116,40 @@ async def prompt_in_context(input: BaseRequest):
 async def prompt_fine_tuned(input: BaseRequest):
     return {}
 
-@app.post("/convo")
+@app.post("/convo", response_model=BaseResponse | ErrorResponse)
 async def prompt_convo_base(input: ConvoPrompt):
+    reset_text = ""
     if input.new:
         reset_convo()
-        return {"success": True}
-    return {"response": prompt_convo(input.prompt)}
+        reset_text = "The conversation was successfully reset. "
+    result = None
+    if input.prompt != "":
+        result = prompt_convo(input.prompt)
+    return BaseResponse(
+        reqRefId=input.reqRefId,
+        resRefId=input.resRefId,
+        answer=result if result is not None else f"{reset_text}The prompt is an empty string."
+    )
 
-@app.post("/summarize")
+@app.post("/summarize", response_model=BaseResponse | ErrorResponse)
 async def prompt_summarize(input: SummarizeInput):
-    result = summarize(input.prompt, max_words=input.max_words)
-    return {"summary": result}
+    try:
+        result = summarize(input.prompt, max_words=input.max_words)
+    except Exception as e:
+        return ErrorResponse(
+            reqRefId = input.reqRefId,
+            resRefId = input.resRefId,
+            error = APIError(
+                code = "SUMMARIZE_GENERAL",
+                message = str(e)
+            )
+        )
+    
+    return BaseResponse(
+        reqRefId=input.reqRefId,
+        resRefId=input.resRefId,
+        answer=result
+    )
 
 if __name__ == "__main__":
     import uvicorn
