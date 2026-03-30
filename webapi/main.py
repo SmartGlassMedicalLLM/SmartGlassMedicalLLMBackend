@@ -8,7 +8,7 @@ from medgemma_convo import prompt_convo, reset_convo
 from long_t5_summarize import summarize
 
 from req_res_structures import BaseRequest, BaseResponse, ErrorResponse, APIError, Highlight
-from read_pdf import extract_pages, get_candidate_passages, extract_reference, pdf_inference_with_references
+from read_pdf import extract_pages, get_candidate_passages, pdf_inference_with_references
 
 app = FastAPI()
 
