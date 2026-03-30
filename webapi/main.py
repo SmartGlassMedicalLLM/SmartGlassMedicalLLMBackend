@@ -19,7 +19,7 @@ class ConvoPrompt(BasicPrompt):
     new: bool
 
 class SummarizeInput(BasicPrompt):
-    max_words: int
+    max_words: int = 0
 
 def simple_medgemma_response(reqRefId: str, resRefId: str, prompt: str) -> BaseResponse:
     return BaseResponse(
