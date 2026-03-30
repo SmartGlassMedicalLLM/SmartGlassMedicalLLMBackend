@@ -116,7 +116,7 @@ async def prompt_in_context(input: BaseRequest):
 async def prompt_fine_tuned(input: BaseRequest):
     return {}
 
-@app.post("/convo", response_model=BaseRequest | ErrorResponse)
+@app.post("/convo", response_model=BaseResponse | ErrorResponse)
 async def prompt_convo_base(input: ConvoPrompt):
     reset_text = ""
     if input.new:
@@ -131,7 +131,7 @@ async def prompt_convo_base(input: ConvoPrompt):
         answer=result if result is not None else f"{reset_text}The prompt is an empty string."
     )
 
-@app.post("/summarize", response_model=BaseRequest | ErrorResponse)
+@app.post("/summarize", response_model=BaseResponse | ErrorResponse)
 async def prompt_summarize(input: SummarizeInput):
     try:
         result = summarize(input.prompt, max_words=input.max_words)
