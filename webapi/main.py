@@ -1,5 +1,8 @@
 import json
-from fastapi import FastAPI, UploadFile, File, Form
+from fastapi import FastAPI, Request, UploadFile, File, Form
+from fastapi.encoders import jsonable_encoder
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 from medgemma_base import medgemma_base_prompt
@@ -26,6 +29,21 @@ def simple_medgemma_response(reqRefId: str, resRefId: str, prompt: str) -> BaseR
         reqRefId=reqRefId,
         resRefId=resRefId,
         answer=medgemma_base_prompt(prompt)
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    data_response = BaseResponse(
+        reqRefId="unknown",
+        resRefId="unknown",
+        error=APIError(
+            code="VALIDATION_ERROR",
+            message="\n".join([(":".join(err.loc) + "|" + err.msg) for err in exc.errors()])
+        )
+    )
+    return JSONResponse(
+        status_code=422,
+        content=jsonable_encoder(data_response.model_dump_json()),
     )
 
 @app.post("/advanced/query", response_model=BaseResponse | ErrorResponse)
