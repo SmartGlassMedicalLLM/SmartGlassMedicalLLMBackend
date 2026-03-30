@@ -15,10 +15,10 @@ from read_pdf import extract_pages, get_candidate_passages, pdf_inference_with_r
 
 app = FastAPI()
 
-class ConvoPrompt(BaseModel):
+class ConvoPrompt(BaseRequest):
     new: bool = False
 
-class SummarizeInput(BaseModel):
+class SummarizeInput(BaseRequest):
     max_words: int = 0
 
 def simple_medgemma_response(reqRefId: str, resRefId: str, prompt: str) -> BaseResponse:
