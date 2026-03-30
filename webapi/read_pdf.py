@@ -78,7 +78,7 @@ Respond ONLY with valid JSON:
       "label": "<short label e.g. 'Study design', 'Safety profile'>"
     }}
   ]
-        f"}}
+}}
 """
 
     formatted_extraction = (
