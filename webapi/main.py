@@ -28,7 +28,7 @@ def simple_medgemma_response(reqRefId: str, resRefId: str, prompt: str) -> BaseR
         answer=medgemma_base_prompt(prompt)
     )
 
-@app.post("/base", response_model=BaseResponse | ErrorResponse)
+@app.post("/advanced/query", response_model=BaseResponse | ErrorResponse)
 async def prompt_base_form_data(
     reqRefId: str = Form(...),
     resRefId: str = Form(...),
@@ -89,7 +89,7 @@ async def prompt_base_form_data(
             references=references
         )
 
-@app.post("/base/json", response_model=BaseResponse | ErrorResponse)
+@app.post("/advanced/query/json", response_model=BaseResponse | ErrorResponse)
 async def prompt_base_json(input: BaseRequest):
     return simple_medgemma_response(input.reqRefId, input.resRefId, input.prompt)
 
