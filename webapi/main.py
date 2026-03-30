@@ -21,6 +21,13 @@ class ConvoPrompt(BasicPrompt):
 class SummarizeInput(BasicPrompt):
     max_words: int
 
+def simple_medgemma_response(reqRefId: str, resRefId: str, prompt: str) -> BaseResponse:
+    return BaseResponse(
+        reqRefId=reqRefId,
+        resRefId=resRefId,
+        answer=medgemma_base_prompt(prompt)
+    )
+
 @app.post("/base", response_model=BaseResponse | ErrorResponse)
 async def prompt_base_form_data(
     reqRefId: str = Form(...),
@@ -60,11 +67,7 @@ async def prompt_base_form_data(
             )
     
     if pdf is None:
-        return BaseResponse(
-            reqRefId = reqRefId,
-            resRefId = resRefId,
-            answer = medgemma_base_prompt(prompt)
-        )
+        return simple_medgemma_response(reqRefId, resRefId, prompt)
     else:
         pages = await extract_pages(pdf)
         candidates = get_candidate_passages(pages, parsed_highlights or [], currPage)
@@ -88,11 +91,7 @@ async def prompt_base_form_data(
 
 @app.post("/base/json", response_model=BaseResponse | ErrorResponse)
 async def prompt_base_json(input: BaseRequest):
-    return BaseResponse(
-        reqRefId = input.reqRefId,
-        resRefId = input.resRefId,
-        answer = "test"
-    )
+    return simple_medgemma_response(input.reqRefId, input.resRefId, input.prompt)
 
 @app.post("/in-context")
 async def prompt_in_context(input: BaseRequest):
