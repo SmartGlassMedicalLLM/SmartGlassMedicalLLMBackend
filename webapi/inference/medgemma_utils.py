@@ -34,5 +34,5 @@ def getLlm() -> LLM:
     return llm
 
 # Load the model on startup only if the env variable "SG_LOAD_MODEL_STARTUP=1"
-if os.getenv('SG_LOAD_MODEL_STARTUP', 0) == 1:
+if os.getenv('SG_LOAD_MODEL_STARTUP', 0) == "1":
     load_llm()

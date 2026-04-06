@@ -34,7 +34,7 @@ def initT5():
         loadT5_tokenizer_model()
 
 # Load the model on startup only if the env variable "SG_LOAD_MODEL_STARTUP=1"
-if os.getenv('SG_LOAD_MODEL_STARTUP', 0) == 1:
+if os.getenv('SG_LOAD_MODEL_STARTUP', 0) == "1":
     initT5()
 
 class MaxTokenLengthExceededException(ValueError):
