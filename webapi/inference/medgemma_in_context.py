@@ -1,7 +1,7 @@
 import json
 import glob
 import os
-from medgemma_utils import llm, extract_params
+from inference.medgemma_utils import llm, extract_params
 import requests
 from xml.etree import ElementTree
 
@@ -18,7 +18,7 @@ def load_drug_data(directory):
             except: continue
     return all_data
 
-drug_data = load_drug_data("/content/trainingFilesConverted/")
+drug_data = load_drug_data("drug_extraction_samples")
 
 ## Build in-context prompt
 

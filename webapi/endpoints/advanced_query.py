@@ -1,9 +1,9 @@
 from fastapi import APIRouter, Form, File, UploadFile
-from req_res_structures import ErrorResponse, APIError, BaseResponse, Highlight
+from utils.req_res_structures import ErrorResponse, APIError, BaseResponse, Highlight
 import json
 
-from medgemma_base import medgemma_base_prompt
-from read_pdf import extract_pages, get_candidate_passages, pdf_inference_with_references
+from inference.medgemma_base import medgemma_base_prompt
+from utils.read_pdf import extract_pages, get_candidate_passages, pdf_inference_with_references
 
 router = APIRouter(prefix="/advanced", tags=["advanced"])
 

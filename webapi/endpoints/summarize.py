@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from req_res_structures import ErrorResponse, APIError, BaseRequest, BaseResponse
+from utils.req_res_structures import ErrorResponse, APIError, BaseRequest, BaseResponse
 
-from long_t5_summarize import summarize
+from inference.long_t5_summarize import summarize
 
 router = APIRouter(prefix="/summarize", tags=["summarize"])
 

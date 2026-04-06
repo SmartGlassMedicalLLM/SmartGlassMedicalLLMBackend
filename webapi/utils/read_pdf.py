@@ -2,8 +2,8 @@ import json
 import fitz
 from difflib import SequenceMatcher
 from fastapi import UploadFile
-from req_res_structures import Highlight, DocumentReference
-from medgemma_utils import llm, base_params
+from utils.req_res_structures import Highlight, DocumentReference
+from inference.medgemma_utils import llm, base_params
 
 async def extract_pages(pdf: UploadFile) -> dict[int, str]:
     pdf_bytes = await pdf.read()
