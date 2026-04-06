@@ -1,13 +1,5 @@
 import streamlit as st
 import requests
-from pydantic import BaseModel
-
-class BasicPrompt(BaseModel):
-    prompt: str
-
-class ConvoPrompt(BaseModel):
-    prompt: str
-    new: bool
 
 st.set_page_config(page_title="MedGemma Interface", layout="centered")
 
@@ -19,6 +11,8 @@ endpoint = f"{server_ip}:{server_port}/convo"
 if st.sidebar.button("Clear Chat History"):
     try:
         payload = {
+            "reqRefId": "TEST",
+            "resRefId": "TEST",
             "prompt": "",
             "new": True
         }
@@ -50,6 +44,8 @@ if prompt := st.chat_input("Ask a medical question..."):
 
     # is_new = len(st.session_state.messages) <= 1
     payload = {
+        "reqRefId": "TEST",
+        "resRefId": "TEST",
         "prompt": prompt,
         "new": False
     }
@@ -62,7 +58,7 @@ if prompt := st.chat_input("Ask a medical question..."):
                 response.raise_for_status()
                 
                 try:
-                    full_response = response.json().get("response")
+                    full_response = response.json().get("answer")
                     st.markdown(full_response)
                     st.session_state.messages.append({"role": "assistant", "content": full_response})
                 except (AttributeError, ValueError):
