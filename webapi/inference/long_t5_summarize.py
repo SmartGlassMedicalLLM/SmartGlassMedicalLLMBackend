@@ -1,6 +1,7 @@
 import torch
 import os
 from transformers import AutoTokenizer, LongT5ForConditionalGeneration
+from medgemma_utils import unload_llm
 
 MODEL_ID = "google/long-t5-tglobal-base"
 MAX_INPUT_TOKENS = 16384
@@ -52,9 +53,12 @@ def check_token_length(text):
     return token_count
 
 def summarize(text, max_words=0):
+    # Unload medgemma for vRAM
+    unload_llm()
+
     # Load model if not loaded
     initT5()
-    
+
     # Fail if input is too large
     check_token_length(text)
 
