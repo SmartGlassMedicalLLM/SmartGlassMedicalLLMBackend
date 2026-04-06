@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from webapi.utils.req_res_structures import BaseRequest
+from utils.req_res_structures import BaseRequest
 
-from webapi.inference.medgemma_in_context import extract_interactions_from_drug
+from inference.medgemma_in_context import extract_interactions_from_drug
 
 router = APIRouter(prefix="/in-context", tags=["in-context"])
 

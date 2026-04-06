@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from webapi.utils.req_res_structures import ErrorResponse, BaseRequest, BaseResponse
+from utils.req_res_structures import ErrorResponse, BaseRequest, BaseResponse
 
-from webapi.inference.medgemma_base import medgemma_base_prompt
+from inference.medgemma_base import medgemma_base_prompt
 
 router = APIRouter(prefix="/advanced", tags=["advanced"])
 

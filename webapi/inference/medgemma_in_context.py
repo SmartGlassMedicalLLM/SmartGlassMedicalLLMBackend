@@ -1,7 +1,7 @@
 import json
 import glob
 import os
-from webapi.inference.medgemma_utils import llm, extract_params
+from inference.medgemma_utils import llm, extract_params
 import requests
 from xml.etree import ElementTree
 

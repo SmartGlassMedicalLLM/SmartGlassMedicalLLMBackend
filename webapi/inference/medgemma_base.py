@@ -1,4 +1,4 @@
-from webapi.inference.medgemma_utils import llm, base_params, extract_params
+from inference.medgemma_utils import llm, base_params, extract_params
 
 ## Extraction build prompt
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from webapi.utils.req_res_structures import ErrorResponse, BaseRequest, BaseResponse
+from utils.req_res_structures import ErrorResponse, BaseRequest, BaseResponse
 
-from webapi.inference.medgemma_convo import prompt_convo, reset_convo
+from inference.medgemma_convo import prompt_convo, reset_convo
 
 router = APIRouter(prefix="/convo", tags=["convo"])
 
