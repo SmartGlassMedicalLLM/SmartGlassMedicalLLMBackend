@@ -19,12 +19,15 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         resRefId="unknown",
         error=APIError(
             code="VALIDATION_ERROR",
-            message="\n".join([(":".join(err.loc) + "|" + err.msg) for err in exc.errors()])
+            message="\n".join([
+                ":".join(str(s) for s in err["loc"]) + "|" + err["msg"]
+                for err in exc.errors()
+            ])
         )
     )
     return JSONResponse(
         status_code=422,
-        content=data_response.model_dump_json(),
+        content=data_response.model_dump(),
     )
 
 # Load endpoints from /endpoints
