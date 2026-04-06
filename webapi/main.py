@@ -1,9 +1,7 @@
 import json
 from fastapi import FastAPI, Request, UploadFile, File, Form
-from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel
 
 from medgemma_base import medgemma_base_prompt
 from medgemma_in_context import extract_interactions_from_drug
