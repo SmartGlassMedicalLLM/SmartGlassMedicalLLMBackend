@@ -13,12 +13,15 @@ PROMPT_PREFIX = (
     "Do not copy sentences directly from the text:\n\n"
 )
 
+class MaxTokenLengthExceededException(ValueError):
+    pass
+
 def check_token_length(text):
     """Raises ValueError if the input exceeds the model's token limit."""
     prompt = PROMPT_PREFIX + text
     token_count = len(tokenizer.encode(prompt))
     if token_count > MAX_INPUT_TOKENS:
-        raise ValueError(
+        raise MaxTokenLengthExceededException(
             f"Input too large: {token_count} tokens exceed the "
             f"model's maximum of {MAX_INPUT_TOKENS}. "
             f"Please shorten the input by ~{token_count - MAX_INPUT_TOKENS} tokens."
