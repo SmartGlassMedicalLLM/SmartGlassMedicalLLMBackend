@@ -1,17 +1,40 @@
 import torch
+import os
 from transformers import AutoTokenizer, LongT5ForConditionalGeneration
 
-tokenizer = AutoTokenizer.from_pretrained("google/long-t5-tglobal-base")
-model = LongT5ForConditionalGeneration.from_pretrained("google/long-t5-tglobal-base").to(
-    "cuda" if torch.cuda.is_available() else "cpu"
-)
-
+MODEL_ID = "google/long-t5-tglobal-base"
 MAX_INPUT_TOKENS = 16384
 PROMPT_PREFIX = (
     "Provide a concise abstractive summary that captures the key events, "
     "characters, and moral or conclusion of the following text. "
     "Do not copy sentences directly from the text:\n\n"
 )
+
+tokenizer = None
+model = None
+
+def loadT5_tokenizer_model():
+    global tokenizer, model
+    tokenizer = AutoTokenizer.from_pretrained(MODEL_ID)
+    model = LongT5ForConditionalGeneration.from_pretrained(MODEL_ID).to(
+        "cuda" if torch.cuda.is_available() else "cpu"
+    )
+
+def unloadT5_tokenizer_model():
+    global tokenizer, model
+    del tokenizer, model
+    tokenizer = None
+    model = None
+    if torch.cuda.is_available():
+        torch.cuda.empty_cache()
+
+def initT5():
+    if tokenizer is None or model is None:
+        loadT5_tokenizer_model()
+
+# Load the model on startup only if the env variable "SG_LOAD_MODEL_STARTUP=1"
+if os.getenv('SG_LOAD_MODEL_STARTUP', 0) == 1:
+    initT5()
 
 class MaxTokenLengthExceededException(ValueError):
     pass
@@ -28,8 +51,10 @@ def check_token_length(text):
         )
     return token_count
 
-# ── Summarize Function ────────────────────────────────────────
 def summarize(text, max_words=0):
+    # Load model if not loaded
+    initT5()
+    
     # Fail if input is too large
     check_token_length(text)
 
