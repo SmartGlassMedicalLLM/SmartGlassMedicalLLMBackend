@@ -1,7 +1,7 @@
 import torch
 import os
 from transformers import AutoTokenizer, LongT5ForConditionalGeneration
-from medgemma_utils import unload_llm
+from inference.medgemma_utils import unload_llm
 
 MODEL_ID = "google/long-t5-tglobal-base"
 MAX_INPUT_TOKENS = 16384
