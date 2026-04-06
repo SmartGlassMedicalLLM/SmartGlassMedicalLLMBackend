@@ -1,4 +1,4 @@
-from inference.medgemma_utils import llm, base_params, extract_params
+from inference.medgemma_utils import getLlm, base_params, extract_params
 
 ## Extraction build prompt
 
@@ -9,12 +9,12 @@ def run_extraction(target_drug, target_text):
 
     # Execute
     formatted_input = f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n[" # Force JSON start
-    outputs = llm.generate([formatted_input], extract_params)
+    outputs = getLlm().generate([formatted_input], extract_params)
     return "[" + outputs[0].outputs[0].text
 
 ## Basic prompt
 
 def medgemma_base_prompt(prompt, force_model_to_start_with = ""):
     formatted_input = f"<start_of_turn>user\n{prompt}<end_of_turn>\n<start_of_turn>model\n{force_model_to_start_with}"
-    outputs = llm.generate([formatted_input], base_params)
+    outputs = getLlm().generate([formatted_input], base_params)
     return force_model_to_start_with + outputs[0].outputs[0].text

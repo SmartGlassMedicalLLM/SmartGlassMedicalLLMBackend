@@ -1,7 +1,7 @@
 import json
 import glob
 import os
-from inference.medgemma_utils import llm, extract_params
+from inference.medgemma_utils import getLlm, extract_params
 import requests
 from xml.etree import ElementTree
 
@@ -49,7 +49,7 @@ def run_in_context_extraction(target_drug, target_text, shots=2):
     formatted_input += "<end_of_turn>\n<start_of_turn>model\n[" # Force JSON start
 
     # Execute
-    outputs = llm.generate([formatted_input], extract_params)
+    outputs = getLlm().generate([formatted_input], extract_params)
     return outputs[0].outputs[0].text
 
 ## DailyMed API
