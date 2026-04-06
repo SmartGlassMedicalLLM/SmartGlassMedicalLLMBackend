@@ -18,7 +18,8 @@ def load_drug_data(directory):
             except: continue
     return all_data
 
-drug_data = load_drug_data("drug_extraction_samples")
+dir = os.path.dirname(os.path.realpath(__file__))
+drug_data = load_drug_data(os.path.join(dir, "drug_extraction_samples"))
 
 ## Build in-context prompt
 
