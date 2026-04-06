@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from req_res_structures import ErrorResponse, APIError
+from webapi.utils.req_res_structures import ErrorResponse, APIError
 
 import importlib
 import pkgutil

@@ -1,6 +1,6 @@
 import torch
 from transformers import AutoTokenizer, LongT5ForConditionalGeneration
-from general_utils import extract_text_from_pdf
+from webapi.utils.general_utils import extract_text_from_pdf
 
 # ── Load Model ────────────────────────────────────────────────
 print("Loading Long-T5...")

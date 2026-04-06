@@ -1,4 +1,4 @@
-from medgemma_utils import llm, convo_params
+from webapi.inference.medgemma_utils import llm, convo_params
 
 context_history = []
 
