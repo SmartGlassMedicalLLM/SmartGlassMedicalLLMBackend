@@ -1,3 +1,13 @@
+"""
+Entry point for the FastAPI application.
+
+All endpoint routers are auto-discovered from the ``endpoints`` package and
+registered with the app at startup. A global validation-error handler
+converts Pydantic ``RequestValidationError`` exceptions into the project's
+standard ``ErrorResponse`` shape so the other group always receives a consistent
+JSON error.
+"""
+
 import importlib
 import pkgutil
 import endpoints
@@ -12,6 +22,17 @@ app = FastAPI()
 # Register custom exception/error handler
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    """
+    Convert Pydantic validation errors into the standard ``ErrorResponse``
+    envelope so all clients receive a consistent JSON error shape.
+
+    The ``message`` field concatenates every field path and human-readable
+    error description separated by ``|``.
+
+    :param request: The incoming HTTP request (unused but required by FastAPI).
+    :param exc: The validation exception raised by Pydantic.
+    :returns: A 422 JSONResponse containing an :class:`ErrorResponse` payload.
+    """
     data_response = ErrorResponse(
         reqRefId="unknown",
         resRefId="unknown",
