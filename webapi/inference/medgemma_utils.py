@@ -1,3 +1,10 @@
+"""
+Singleton model and sampling-parameter configuration for MedGemma
+
+The ``LLM`` object is instantiated **once** at import time so that all
+inference modules share a single in-memory model.
+"""
+
 from vllm import LLM, SamplingParams
 
 model_id = "google/medgemma-4b-it"

@@ -1,3 +1,10 @@
+"""
+Provides abstractive summarization using ``google/long-t5-tglobal-base``.
+
+The model supports up to :data:`MAX_INPUT_TOKENS` input tokens (16,384), which
+makes it suitable for long medical documents.
+"""
+
 import torch
 from transformers import AutoTokenizer, LongT5ForConditionalGeneration
 
@@ -7,17 +14,30 @@ model = LongT5ForConditionalGeneration.from_pretrained("google/long-t5-tglobal-b
 )
 
 MAX_INPUT_TOKENS = 16384
+"""Maximum number of tokens the model can accept as input."""
+
 PROMPT_PREFIX = (
     "Provide a concise abstractive summary that captures the key events, "
     "characters, and moral or conclusion of the following text. "
     "Do not copy sentences directly from the text:\n\n"
 )
+"""Instruction prefix prepended to every summarization request."""
 
 class MaxTokenLengthExceededException(ValueError):
+    """Raised when :data:`MAX_INPUT_TOKENS` is exceeded."""
     pass
 
-def check_token_length(text):
-    """Raises ValueError if the input exceeds the model's token limit."""
+def check_token_length(text: str) -> int:
+    """
+    Validate that the input text (plus the instruction prefix) fits within the
+    model's context window.
+
+    :param text: The raw input text to be summarized.
+    :returns: The actual token count of the prefixed input.
+    :raises MaxTokenLengthExceededException: If the token count exceeds
+        :data:`MAX_INPUT_TOKENS`. The message includes how many tokens need
+        to be removed.
+    """
     prompt = PROMPT_PREFIX + text
     token_count = len(tokenizer.encode(prompt))
     if token_count > MAX_INPUT_TOKENS:
@@ -28,8 +48,19 @@ def check_token_length(text):
         )
     return token_count
 
-# ── Summarize Function ────────────────────────────────────────
-def summarize(text, max_words=0):
+def summarize(text: str, max_words: int = 0) -> str:
+    """
+    Generate an abstractive summary of the provided text.
+
+    :param text: The document or passage to summarize.
+    :param max_words: Soft upper bound on summary length in words.  The model
+        is given ``max_words * 1.5`` output tokens as the ceiling.  Pass
+        ``0`` (default) for no word-count constraint (capped at 4k tokens).
+    :returns: The decoded summary string.
+    :raises MaxTokenLengthExceededException: If *text* is too long for the model.
+    :raises ValueError: If *max_words* is so low that fewer than the minimum
+        40 output tokens would be allowed.
+    """
     # Fail if input is too large
     check_token_length(text)
 
