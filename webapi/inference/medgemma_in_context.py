@@ -1,3 +1,8 @@
+"""
+Extracts drug-drug interactions from DailyMed prescribing information using
+few-shot (in-context) prompting with MedGemma.
+"""
+
 import json
 import glob
 import os
@@ -5,9 +10,17 @@ from inference.medgemma_utils import llm, extract_params
 import requests
 from xml.etree import ElementTree
 
-## Collect drug data
+def load_drug_data(directory: str) -> list[dict]:
+    """
+    Load all drug interaction JSON samples from a directory.
 
-def load_drug_data(directory):
+    Each file must contain a JSON object with at least the keys ``"drug"``,
+    ``"text"``, and ``"interactions"``.  Files that fail to parse are silently
+    skipped.
+
+    :param directory: Path to the folder containing ``.json`` example files.
+    :returns: List of parsed drug data dicts or empty list on failure
+    """
     all_data = []
     file_paths = glob.glob(os.path.join(directory, "*.json"))
     for path in file_paths:
@@ -20,10 +33,23 @@ def load_drug_data(directory):
 
 dir = os.path.dirname(os.path.realpath(__file__))
 drug_data = load_drug_data(os.path.join(dir, "drug_extraction_samples"))
+"""Pre-loaded examples used by :func:`run_in_context_extraction`."""
 
-## Build in-context prompt
+def run_in_context_extraction(target_drug: str, target_text: str, shots: int = 2) -> str:
+    """
+    Build a multi-shot prompt from cached examples and run structured
+    interaction extraction with MedGemma.
 
-def run_in_context_extraction(target_drug, target_text, shots=2):
+    Example drugs that match ``target_drug`` are excluded from the shot pool
+    to avoid data leakage.  The prompt follows the Gemma chat turn format
+    (``<start_of_turn>`` / ``<end_of_turn>``), and the model is forced to start
+    with ``[`` for a JSON array response.
+
+    :param target_drug: Name of the drug to extract interactions for.
+    :param target_text: Prescribing information text.
+    :param shots: Number of few-shot examples to include (default 2).
+    :returns: Raw model output string that *should* be valid JSON.
+    """
     # Select examples for the context
     context_examples = [ex for ex in drug_data if ex['drug'] != target_drug][:shots]
 
@@ -52,13 +78,17 @@ def run_in_context_extraction(target_drug, target_text, shots=2):
     outputs = llm.generate([formatted_input], extract_params)
     return outputs[0].outputs[0].text
 
-## DailyMed API
+def fetch_setId(drug_name: str) -> str | None:
+    """
+    Retrieve the SET ID for the first matching drug label from the DailyMed API.
 
-def fetch_setId(drug_name):
+    Queries ``/dailymed/services/v2/spls.json`` with the drug name and returns
+    the ``setid`` of the first result.
+
+    :param drug_name: Common or brand name of the drug (case-insensitive).
+    :returns: The DailyMed SET ID string, or ``None`` if no results are found
+              or the request fails.
     """
-    Retrieves the SET ID for the first drug with the given name from the DailyMed API.
-    """
-    # API endpoint
     endpoint = "https://dailymed.nlm.nih.gov/dailymed/services/v2/spls.json"
 
     # Build query
@@ -80,11 +110,20 @@ def fetch_setId(drug_name):
         print(f"Error fetching SET ID for {drug_name}: {str(e)}")
         return None
 
-def fetch_dailyMed_interactions(drug_name):
+def fetch_dailyMed_interactions(drug_name: str) -> dict | None:
     """
-    Retrieves Section 7 (Drug Interactions) from the DailyMed API.
+    Retrieve Section 7 (Drug Interactions) from the DailyMed XML label for a
+    given drug, identified via :func:`fetch_setId`.
+
+    Parses the HL7 V3 XML for the ``34073-7`` LOINC section code and strips
+    all text content.
+
+    :param drug_name: Common or brand name of the drug.
+    :returns: Dict with keys ``"drug"`` (uppercased), ``"text"`` (plain-text
+              interaction section), and ``"source"`` (``"DailyMed API"``);
+              or ``None`` if the SET ID cannot be found, the request fails, or
+              Section 7 is absent from the label.
     """
-    # Get the SET ID for the drug name
     setId = fetch_setId(drug_name)
     if setId is None:
         return None
@@ -110,9 +149,18 @@ def fetch_dailyMed_interactions(drug_name):
         print(f"Error fetching {drug_name}: {str(e)}")
         return None
 
-## Pull drug info with DailyMed and then prompt for extraction
+def extract_interactions_from_drug(drug_name: str) -> str | dict:
+    """
+    Fetch DailyMed data for a drug and return a JSON
+    array of extracted drug-drug interactions.
 
-def extract_interactions_from_drug(drug_name):
+    Calls :func:`fetch_dailyMed_interactions` to get Section 7 text, then
+    passes it to :func:`run_in_context_extraction` for LLM inference.
+
+    :param drug_name: Common or brand name of the drug to look up.
+    :returns: A JSON array string on success, or a dict
+              ``{"error": "<message>"}`` if the drug label cannot be found.
+    """
     collected_data = fetch_dailyMed_interactions(drug_name)
 
     if collected_data is None:
