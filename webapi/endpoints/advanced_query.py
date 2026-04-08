@@ -13,6 +13,7 @@ form data with file uploads).
 """
 
 from fastapi import APIRouter, Form, File, UploadFile
+from pydantic import ValidationError
 from utils.req_res_structures import ErrorResponse, APIError, BaseResponse, Highlight
 import json
 
@@ -74,7 +75,7 @@ async def prompt_base_form_data(
     if json_highlights is not None:
         try:
             parsed_highlights = [Highlight(**h) for h in json_highlights]
-        except TypeError:
+        except (TypeError, ValidationError):
             return ErrorResponse(
                 reqRefId = reqRefId,
                 resRefId = resRefId,
