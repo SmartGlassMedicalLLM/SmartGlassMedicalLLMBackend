@@ -6,7 +6,7 @@ Every request carries ``reqRefId`` / ``resRefId`` correlation identifiers so
 that callers can trace requests.
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 class Highlight(BaseModel):
   """
@@ -58,6 +58,12 @@ class DocumentReference(BaseModel):
   quote: str
   highlightedWord: str
   confidence: float
+
+  @field_validator('confidence')
+  def validate_confidence_bounds(val: float):
+    if val < 0 or val > 1:
+      raise ValueError(f'{val} is not in the range of [0, 1].')
+    return val
 
 class BaseResponse(BaseModel):
   """
