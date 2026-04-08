@@ -26,7 +26,18 @@ class SummarizeInput(BaseRequest):
     """
     max_words: int = 0
 
-@router.post("/", response_model=BaseResponse | ErrorResponse)
+@router.post(
+    "/",
+    response_model=BaseResponse | ErrorResponse,
+    summary="Summarize text or a document passage",
+    description=(
+        "Generate an abstractive summary of the supplied text using LongT5. "
+        "Set `max_words` to a positive integer to cap the summary length; "
+        "use `0` for no limit. "
+        "Returns `SUMMARIZE_INPUT_EXCEEDS_MAX_TOKENS` if the input is too long "
+        "for the model's 16,384-token context window."
+    ),
+)
 async def prompt_summarize(input: SummarizeInput):
     """
     Run LongT5 summarization on ``input.prompt``.

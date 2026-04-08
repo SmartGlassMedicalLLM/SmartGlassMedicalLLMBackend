@@ -21,17 +21,32 @@ from utils.read_pdf import extract_pages, get_candidate_passages, pdf_inference_
 
 router = APIRouter(prefix="/advanced", tags=["advanced"])
 
-@router.post("/query", response_model=BaseResponse | ErrorResponse)
+@router.post(
+    "/query",
+    response_model=BaseResponse | ErrorResponse,
+    summary="Ask a medical question with optional PDF context",
+    description=(
+        "Submit a natural-language question with an optional PDF document. "
+        "When a PDF is supplied, the answer is grounded in the document and "
+        "includes `references` with page numbers, quotes, and confidence scores. "
+        "Pass `highlights` as a JSON-encoded array of `{word, pages}` objects to "
+        "scope inference to specific highlighted regions. "
+        "\n\nError codes:\n"
+        "- `000_INJSON` - `highlights` field is not valid JSON.\n"
+        "- `002_INMODE` - `highlights` JSON does not match the expected schema.\n"
+        "- `001_PDFANS` - inference failed during PDF question-answering."
+    ),
+)
 async def prompt_base_form_data(
-    reqRefId: str = Form(...),
-    resRefId: str = Form(...),
-    prompt: str = Form(...),
-    sessionId: str | None = Form(None),
-    userId: str | None = Form(None),
-    docName: str | None = Form(None),
-    currPage: int | None = Form(None),
-    highlights: str | None = Form(None),
-    pdf: UploadFile | None = File(None)
+    reqRefId: str = Form(..., description="Client-assigned request correlation ID."),
+    resRefId: str = Form(..., description="Client-assigned response correlation ID."),
+    prompt: str = Form(..., description="The natural-language question to answer."),
+    sessionId: str | None = Form(None, description="Optional session identifier."),
+    userId: str | None = Form(None, description="Optional user identifier."),
+    docName: str | None = Form(None, description="Optional document name for logging."),
+    currPage: int | None = Form(None, description="1-indexed current page number."),
+    highlights: str | None = Form(None, description="JSON-encoded array of highlight objects."),
+    pdf: UploadFile | None = File(None, description="Optional PDF document for grounded Q&A.")
 ):
     """
     Handle a document-grounded or general medical question.

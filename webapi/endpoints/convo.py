@@ -1,4 +1,4 @@
-"""
+"""Z
 Exposes ``POST /convo/`` for stateful multi-turn conversation with MedGemma.
 
 The ``new`` flag on the request body can be used to reset the conversation
@@ -21,7 +21,17 @@ class ConvoPrompt(BaseRequest):
     """
     new: bool = False
 
-@router.post("/", response_model=BaseResponse | ErrorResponse)
+@router.post(
+    "/",
+    response_model=BaseResponse | ErrorResponse,
+    summary="Send a message in a multi-turn medical conversation",
+    description=(
+        "Maintain a stateful conversation with MedGemma across multiple turns. "
+        "Set `new=true` to reset the history and begin a fresh session. "
+        "Sending an empty `prompt` with `new=true` will reset the session "
+        "without generating a model response."
+    ),
+)
 async def prompt_convo_base(input: ConvoPrompt):
     """
     Handle a single conversational turn.

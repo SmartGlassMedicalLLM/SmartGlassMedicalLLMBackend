@@ -15,7 +15,16 @@ from inference.medgemma_base import medgemma_base_prompt
 
 router = APIRouter(prefix="/advanced", tags=["advanced"])
 
-@router.post("/query/json", response_model=BaseResponse | ErrorResponse)
+@router.post(
+    "/query/json",
+    response_model=BaseResponse | ErrorResponse,
+    summary="Ask a general medical question",
+    description=(
+        "Send a natural-language medical question as a JSON body and receive a "
+        "MedGemma-generated answer. No document upload is required. "
+        "For document-grounded answers with citations use `POST /advanced/query`."
+    ),
+)
 async def prompt_base_json(input: BaseRequest):
     """
     Run a single stateless prompt through MedGemma and return the answer.
