@@ -17,7 +17,17 @@ from inference.medgemma_in_context import extract_interactions_from_drug
 
 router = APIRouter(prefix="/in-context", tags=["in-context"])
 
-@router.post("/")
+@router.post(
+    "/",
+    summary="Extract drug-drug interactions via in-context learning",
+    description=(
+        "Supply a drug name in `prompt` to retrieve its prescribing label from "
+        "DailyMed and extract structured drug-drug interactions using few-shot "
+        "MedGemma inference. "
+        "Returns a JSON array of interaction objects or an error dict if the "
+        "drug label cannot be found."
+    ),
+)
 async def prompt_in_context(input: BaseRequest):
     """
     Run the full DailyMed-fetch and few-shot-extraction pipeline.
