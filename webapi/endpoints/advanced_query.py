@@ -1,3 +1,17 @@
+"""
+Exposes ``POST /advanced/query`` - a multipart/form-data endpoint that accepts
+an optional PDF upload alongside the question prompt.
+
+* **Without PDF** - delegates directly to MedGemma for a general medical answer.
+* **With PDF** - extracts page text, scopes candidate passages to any
+  highlighted terms or the current page, then runs two-phase cited inference
+  via :func:`~utils.read_pdf.pdf_inference_with_references`.
+
+All fields mirror :class:`~utils.req_res_structures.BaseRequest` but are
+received as individual ``Form(...)`` fields (required by FastAPI when mixing
+form data with file uploads).
+"""
+
 from fastapi import APIRouter, Form, File, UploadFile
 from utils.req_res_structures import ErrorResponse, APIError, BaseResponse, Highlight
 import json
@@ -19,8 +33,18 @@ async def prompt_base_form_data(
     highlights: str | None = Form(None),
     pdf: UploadFile | None = File(None)
 ):
+    """
+    Handle a document-grounded or general medical question.
+
+    Parses the optional ``highlights`` JSON string, then either runs a plain
+    MedGemma prompt (no PDF) or PDF-grounded inference with document references.
+
+    :returns: :class:`~utils.req_res_structures.BaseResponse` (with optional
+              ``references``) on success, or
+              :class:`~utils.req_res_structures.ErrorResponse` on failure.
+    """
     try:
-        json_highlights=json.loads(highlights) if highlights is not None else None
+        json_highlights = json.loads(highlights) if highlights is not None else None
     except json.JSONDecodeError:
         return ErrorResponse(
             reqRefId = reqRefId,
@@ -44,7 +68,7 @@ async def prompt_base_form_data(
                     message = "Invalid internal highlights JSON"
                 )
             )
-    
+
     if pdf is None:
         return BaseResponse(
             reqRefId=reqRefId,
