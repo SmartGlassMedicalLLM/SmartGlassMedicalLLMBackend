@@ -17,7 +17,19 @@ from fastapi.responses import JSONResponse
 
 from utils.req_res_structures import ErrorResponse, APIError
 
-app = FastAPI()
+app = FastAPI(
+    title="Smart Glass Medical AI API",
+    description=(
+        "AI-powered backend for the Smart Glass Medical Assistant project "
+        "(Group 207 / Penn State Health). Provides document summarization, "
+        "medical Q&A, drug-interaction extraction, and multi-turn conversation "
+        "capabilities backed by MedGemma and LongT5 models.\n\n"
+        "All endpoints share a common request model (`reqRefId`, `resRefId`, "
+        "`prompt`) and return either a `BaseResponse` or an `ErrorResponse`."
+    ),
+    version="1.0.0-SNAPSHOT",
+    contact={"name": "Group 207 - Penn State Capstone"},
+)
 
 # Register custom exception/error handler
 @app.exception_handler(RequestValidationError)
