@@ -1,0 +1,799 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Smart Glass Medical AI API",
+    "description": "AI-powered backend for the Smart Glass Medical Assistant project (Group 207 / Penn State Health). Provides document summarization, medical Q&A, drug-interaction extraction, and multi-turn conversation capabilities backed by MedGemma and LongT5 models.\n\nAll endpoints share a common request model (`reqRefId`, `resRefId`, `prompt`) and return either a `BaseResponse` or an `ErrorResponse`.",
+    "contact": {
+      "name": "Group 207 - Penn State Capstone"
+    },
+    "version": "1.0.0-SNAPSHOT"
+  },
+  "paths": {
+    "/advanced/query": {
+      "post": {
+        "tags": [
+          "advanced"
+        ],
+        "summary": "Ask a medical question with optional PDF context",
+        "description": "Submit a natural-language question with an optional PDF document. When a PDF is supplied, the answer is grounded in the document and includes `references` with page numbers, quotes, and confidence scores. Pass `highlights` as a JSON-encoded array of `{word, pages}` objects to scope inference to specific highlighted regions. \n\nError codes:\n- `000_INJSON` - `highlights` field is not valid JSON.\n- `002_INMODE` - `highlights` JSON does not match the expected schema.\n- `001_PDFANS` - inference failed during PDF question-answering.",
+        "operationId": "prompt_base_form_data_advanced_query_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_prompt_base_form_data_advanced_query_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response Prompt Base Form Data Advanced Query Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/advanced/query/json": {
+      "post": {
+        "tags": [
+          "advanced"
+        ],
+        "summary": "Ask a general medical question",
+        "description": "Send a natural-language medical question as a JSON body and receive a MedGemma-generated answer. No document upload is required. For document-grounded answers with citations use `POST /advanced/query`.",
+        "operationId": "prompt_base_json_advanced_query_json_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BaseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response Prompt Base Json Advanced Query Json Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/convo/": {
+      "post": {
+        "tags": [
+          "convo"
+        ],
+        "summary": "Send a message in a multi-turn medical conversation",
+        "description": "Maintain a stateful conversation with MedGemma across multiple turns. Set `new=true` to reset the history and begin a fresh session. Sending an empty `prompt` with `new=true` will reset the session without generating a model response.",
+        "operationId": "prompt_convo_base_convo__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConvoPrompt"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response Prompt Convo Base Convo  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/in-context/": {
+      "post": {
+        "tags": [
+          "in-context"
+        ],
+        "summary": "Extract drug-drug interactions via in-context learning",
+        "description": "Supply a drug name in `prompt` to retrieve its prescribing label from DailyMed and extract structured drug-drug interactions using few-shot MedGemma inference. Returns a JSON array of interaction objects or an error dict if the drug label cannot be found.",
+        "operationId": "prompt_in_context_in_context__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BaseRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/summarize/": {
+      "post": {
+        "tags": [
+          "summarize"
+        ],
+        "summary": "Summarize text or a document passage",
+        "description": "Generate an abstractive summary of the supplied text using LongT5. Set `max_words` to a positive integer to cap the summary length; use `0` for no limit. Returns `SUMMARIZE_INPUT_EXCEEDS_MAX_TOKENS` if the input is too long for the model's 16,384-token context window.",
+        "operationId": "prompt_summarize_summarize__post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SummarizeInput"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/BaseResponse"
+                    },
+                    {
+                      "$ref": "#/components/schemas/ErrorResponse"
+                    }
+                  ],
+                  "title": "Response Prompt Summarize Summarize  Post"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "APIError": {
+        "properties": {
+          "code": {
+            "type": "string",
+            "title": "Code"
+          },
+          "message": {
+            "type": "string",
+            "title": "Message"
+          }
+        },
+        "type": "object",
+        "required": [
+          "code",
+          "message"
+        ],
+        "title": "APIError",
+        "description": "Structured error detail embedded inside :class:`ErrorResponse`.\n\n:param code: Machine-readable error code (such as ``\"VALIDATION_ERROR\"``).\n:param message: Human-readable error description."
+      },
+      "BaseRequest": {
+        "properties": {
+          "reqRefId": {
+            "type": "string",
+            "title": "Reqrefid"
+          },
+          "resRefId": {
+            "type": "string",
+            "title": "Resrefid"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt"
+          },
+          "sessionId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessionid"
+          },
+          "userId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userid"
+          },
+          "docName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Docname"
+          },
+          "currPage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currpage"
+          },
+          "highlights": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Highlight"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Highlights"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reqRefId",
+          "resRefId",
+          "prompt"
+        ],
+        "title": "BaseRequest",
+        "description": "Common request shared by all endpoints.\n\n:param reqRefId: Client-assigned request correlation ID.\n:param resRefId: Client-assigned response correlation ID.\n:param prompt: The natural-language prompt or text to process.\n:param sessionId: Optional session identifier for stateful interactions.\n:param userId: Optional user identifier for analytics.\n:param docName: Optional name of the document being queried.\n:param currPage: Optional 1-indexed current page number in the viewed document.\n:param highlights: Optional list of highlighted terms and their page locations."
+      },
+      "BaseResponse": {
+        "properties": {
+          "reqRefId": {
+            "type": "string",
+            "title": "Reqrefid"
+          },
+          "resRefId": {
+            "type": "string",
+            "title": "Resrefid"
+          },
+          "answer": {
+            "type": "string",
+            "title": "Answer"
+          },
+          "references": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/DocumentReference"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "References"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reqRefId",
+          "resRefId",
+          "answer"
+        ],
+        "title": "BaseResponse",
+        "description": "Standard success response envelope.\n\n:param reqRefId: Echoed from the request for correlation.\n:param resRefId: Echoed from the request for correlation.\n:param answer: The model's answer or generated text.\n:param references: Optional list of document citations supporting the answer."
+      },
+      "Body_prompt_base_form_data_advanced_query_post": {
+        "properties": {
+          "reqRefId": {
+            "type": "string",
+            "title": "Reqrefid",
+            "description": "Client-assigned request correlation ID."
+          },
+          "resRefId": {
+            "type": "string",
+            "title": "Resrefid",
+            "description": "Client-assigned response correlation ID."
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt",
+            "description": "The natural-language question to answer."
+          },
+          "sessionId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessionid",
+            "description": "Optional session identifier."
+          },
+          "userId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userid",
+            "description": "Optional user identifier."
+          },
+          "docName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Docname",
+            "description": "Optional document name for logging."
+          },
+          "currPage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currpage",
+            "description": "1-indexed current page number."
+          },
+          "highlights": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Highlights",
+            "description": "JSON-encoded array of highlight objects."
+          },
+          "pdf": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "binary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pdf",
+            "description": "Optional PDF document for grounded Q&A."
+          }
+        },
+        "type": "object",
+        "required": [
+          "reqRefId",
+          "resRefId",
+          "prompt"
+        ],
+        "title": "Body_prompt_base_form_data_advanced_query_post"
+      },
+      "ConvoPrompt": {
+        "properties": {
+          "reqRefId": {
+            "type": "string",
+            "title": "Reqrefid"
+          },
+          "resRefId": {
+            "type": "string",
+            "title": "Resrefid"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt"
+          },
+          "sessionId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessionid"
+          },
+          "userId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userid"
+          },
+          "docName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Docname"
+          },
+          "currPage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currpage"
+          },
+          "highlights": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Highlight"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Highlights"
+          },
+          "new": {
+            "type": "boolean",
+            "title": "New",
+            "default": false
+          }
+        },
+        "type": "object",
+        "required": [
+          "reqRefId",
+          "resRefId",
+          "prompt"
+        ],
+        "title": "ConvoPrompt",
+        "description": "Request body for the conversational endpoint.\n\n:param new: If ``True``, the conversation history is cleared before this\n    turn is processed, effectively starting a new session."
+      },
+      "DocumentReference": {
+        "properties": {
+          "refId": {
+            "type": "string",
+            "title": "Refid"
+          },
+          "page": {
+            "type": "integer",
+            "title": "Page"
+          },
+          "label": {
+            "type": "string",
+            "title": "Label"
+          },
+          "quote": {
+            "type": "string",
+            "title": "Quote"
+          },
+          "highlightedWord": {
+            "type": "string",
+            "title": "Highlightedword"
+          },
+          "confidence": {
+            "type": "number",
+            "title": "Confidence"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refId",
+          "page",
+          "label",
+          "quote",
+          "highlightedWord",
+          "confidence"
+        ],
+        "title": "DocumentReference",
+        "description": "A document citation supporting a claim in an AI-generated answer.\n\n:param refId: Unique reference identifier (such as ``\"ref-1\"``).\n:param page: 1-indexed page number the quote was taken from.\n:param label: Short human-readable label (such as ``\"Safety profile\"``).\n:param quote: The verbatim excerpt from the document.\n:param highlightedWord: The highlighted word that scoped this reference, if any.\n:param confidence: Similarity score (0-1) between the claim and the quote."
+      },
+      "ErrorResponse": {
+        "properties": {
+          "reqRefId": {
+            "type": "string",
+            "title": "Reqrefid"
+          },
+          "resRefId": {
+            "type": "string",
+            "title": "Resrefid"
+          },
+          "error": {
+            "$ref": "#/components/schemas/APIError"
+          }
+        },
+        "type": "object",
+        "required": [
+          "reqRefId",
+          "resRefId",
+          "error"
+        ],
+        "title": "ErrorResponse",
+        "description": "Standard error response returned when a request cannot be fulfilled.\n\n:param reqRefId: Echoed from the request (``\"unknown\"`` if unparseable).\n:param resRefId: Echoed from the request (``\"unknown\"`` if unparseable).\n:param error: Structured error detail."
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Highlight": {
+        "properties": {
+          "word": {
+            "type": "string",
+            "title": "Word"
+          },
+          "pages": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Pages"
+          }
+        },
+        "type": "object",
+        "required": [
+          "word",
+          "pages"
+        ],
+        "title": "Highlight",
+        "description": "A single highlighted term and the pages on which it appears.\n\n:param word: The highlighted word or phrase.\n:param pages: List of 1-indexed page numbers where the word was highlighted."
+      },
+      "SummarizeInput": {
+        "properties": {
+          "reqRefId": {
+            "type": "string",
+            "title": "Reqrefid"
+          },
+          "resRefId": {
+            "type": "string",
+            "title": "Resrefid"
+          },
+          "prompt": {
+            "type": "string",
+            "title": "Prompt"
+          },
+          "sessionId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Sessionid"
+          },
+          "userId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Userid"
+          },
+          "docName": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Docname"
+          },
+          "currPage": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currpage"
+          },
+          "highlights": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/Highlight"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Highlights"
+          },
+          "max_words": {
+            "type": "integer",
+            "title": "Max Words",
+            "default": 0
+          }
+        },
+        "type": "object",
+        "required": [
+          "reqRefId",
+          "resRefId",
+          "prompt"
+        ],
+        "title": "SummarizeInput",
+        "description": "Request body for the summarization endpoint.\n\nExtends :class:`~utils.req_res_structures.BaseRequest` with an optional\nword-count limit.\n\n:param max_words: Soft upper bound on summary length in words.\n    ``0`` (default) means no limit."
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    }
+  }
+}
