@@ -28,7 +28,8 @@ def load_drug_data(directory: str) -> list[dict]:
             try:
                 item = json.load(f)
                 all_data.append(item)
-            except: continue
+            except json.JSONDecodeError:
+                continue
     return all_data
 
 dir = os.path.dirname(os.path.realpath(__file__))
