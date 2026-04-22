@@ -12,6 +12,7 @@ received as individual ``Form(...)`` fields (required by FastAPI when mixing
 form data with file uploads).
 """
 
+from typing import Annotated
 from fastapi import APIRouter, Form, File, UploadFile
 from pydantic import ValidationError
 from utils.req_res_structures import ErrorResponse, APIError, BaseResponse, Highlight
@@ -39,15 +40,15 @@ router = APIRouter(prefix="/advanced", tags=["advanced"])
     ),
 )
 async def prompt_base_form_data(
-    reqRefId: str = Form(..., description="Client-assigned request correlation ID."),
-    resRefId: str = Form(..., description="Client-assigned response correlation ID."),
-    prompt: str = Form(..., description="The natural-language question to answer."),
-    sessionId: str | None = Form(None, description="Optional session identifier."),
-    userId: str | None = Form(None, description="Optional user identifier."),
-    docName: str | None = Form(None, description="Optional document name for logging."),
-    currPage: int | None = Form(None, description="1-indexed current page number."),
-    highlights: str | None = Form(None, description="JSON-encoded array of highlight objects."),
-    pdf: UploadFile | None = File(None, description="Optional PDF document for grounded Q&A.")
+    reqRefId: Annotated[str, Form(description="Client-assigned request correlation ID.")],
+    resRefId: Annotated[str, Form(description="Client-assigned response correlation ID.")],
+    prompt: Annotated[str, Form(description="The natural-language question to answer.")],
+    sessionId: Annotated[str | None, Form(description="Optional session identifier.")] = None,
+    userId: Annotated[str | None, Form(description="Optional user identifier.")] = None,
+    docName: Annotated[str | None, Form(description="Optional document name for logging.")] = None,
+    currPage: Annotated[int | None, Form(description="1-indexed current page number.")] = None,
+    highlights: Annotated[str | None, Form(description="JSON-encoded array of highlight objects.")] = None,
+    pdf: Annotated[UploadFile | None, File(description="Optional PDF document for grounded Q&A.")] = None
 ):
     """
     Handle a document-grounded or general medical question.
