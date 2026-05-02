@@ -1,0 +1,23 @@
+[Unit]
+Description=Smart Glass Medical Assistant Web API
+# Wait for the network to be up so the git pull doesn't fail
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=/opt/Smart-Glass-Medical-Assistant/webapi
+
+# Pull the latest code before starting
+ExecStartPre=/usr/bin/git -C /opt/Smart-Glass-Medical-Assistant pull
+
+# Run the API using the venv's python binary directly
+ExecStart=/opt/pytorch/bin/python ./main.py
+
+# Restart the service if it crashes
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
